@@ -25,6 +25,7 @@ protoMS.setupView = function(){
 
     this.setupModeContainer();
     this.setupAdditionalElements();
+    this.setupButtons();
 
 }
 
@@ -44,6 +45,33 @@ protoMS.setupAdditionalElements = function(){
     var corals = new PIXI.Sprite.fromImage("./img/corals.png");
     corals.anchor.x = 0.5;
     corals.anchor.y = -0.6;
+
+    var img = new Image();
+    img.src = "./img/symbols-anim.png"
+    var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.NEAREST);
+    var wildTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 100, 100));
+    var wild = new PIXI.Sprite(wildTexture);
+
+    wild.anchor.x = 1.8;
+    wild.anchor.y = 1;
+
+    wild.scale.x = 1.2;
+    wild.scale.y = 1.2;
+
+    var scatterTexture = new PIXI.Texture(texture, new PIXI.Rectangle(0, 100, 100, 100));
+    var scatter = new PIXI.Sprite(scatterTexture);
+    scatter.anchor.x = -0.7;
+    scatter.anchor.y = 1;
+    scatter.scale.x = 1.2;
+    scatter.scale.y = 1.2;
+
+    var wildText = new PIXI.Text("WILD", {fill:"#f4ad30",font:"bold 20pt Helvetica"})
+    wildText.anchor.x = 2.75;
+    wildText.anchor.y = -0.25;
+
+    var scatterText = new PIXI.Text("SCATTER", {fill:"#f4ad30",font:"bold 20pt Helvetica"})
+    scatterText.anchor.x = -0.65;
+    scatterText.anchor.y = -0.25;
 
    /* var coralR = new PIXI.Sprite.fromImage("./img/coral_right.png");
     coralR.anchor.x = -0.9;
@@ -68,6 +96,10 @@ console.log(frame)
     this.modeContainer.addChildAt(frame,0);
     this.modeContainer.addChildAt(logo,1);
     this.modeContainer.addChildAt(corals,1);
+    this.modeContainer.addChildAt(wild,1);
+    this.modeContainer.addChildAt(scatter,1);
+    this.modeContainer.addChildAt(wildText,1);
+    this.modeContainer.addChildAt(scatterText,1);
 //    this.modeContainer.addChildAt(coralR,1);
 //    this.modeContainer.addChildAt(coralL,1);
 //    this.modeContainer.addChildAt(maskR,1);
@@ -143,3 +175,42 @@ protoMS.setupBackground = function(){
     this.modeContainer.addChildAt(this.backgroundElement,0);
 }
 
+protoMS.setupButtons = function(){
+    var img = new Image();
+    img.src = "./img/pfr_pff.png"
+    var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
+    var playForRealTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 245, 57));
+    var playForReal = new PIXI.Sprite(playForRealTexture);
+
+    playForReal.scale.x = 1.1;
+    playForReal.scale.y = 1.1;
+    playForReal.anchor.x = 0.5;
+    playForReal.anchor.y = 0.5;
+
+    playForReal.position.y = 100
+
+    var playForRealText = new PIXI.Text("Play For Real", {fill:"black",font:"bold 20pt Helvetica"})
+    playForRealText.anchor.x = 0.5;
+    playForRealText.anchor.y = 0.5;
+
+    playForReal.addChild(playForRealText);
+
+    var playForFunTexture = new PIXI.Texture(texture, new PIXI.Rectangle(0, 58, 245, 57));
+    var playForFun = new PIXI.Sprite(playForFunTexture);
+
+    playForFun.anchor.x = 0.5;
+    playForFun.anchor.y = 0.5;
+
+    playForFun.position.y = 170
+
+    var playForFunText = new PIXI.Text("Play For Fun", {fill:"black",font:"bold 20pt Helvetica"})
+    playForFunText.anchor.x = 0.5;
+    playForFunText.anchor.y = 0.5;
+    playForFunText.scale.x = 1.1;
+    playForFunText.scale.y = 1.1;
+
+    playForFun.addChild(playForFunText)
+
+    this.modeContainer.addChildAt(playForReal,1);
+    this.modeContainer.addChildAt(playForFun,1);
+}

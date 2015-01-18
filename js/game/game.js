@@ -50,7 +50,9 @@ protoGA.initAssetsLoader = function(){
         "./img/frame.png",
         "./img/logo.png",
         "./img/coral_right.png",
-        "./img/coral_left.png"
+        "./img/coral_left.png",
+        "./img/symbols-anim.png",
+        "./img/pfr_pff.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);
