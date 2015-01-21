@@ -25,7 +25,9 @@ protoMS.setupView = function(){
 
     this.setupModeContainer();
     this.setupAdditionalElements();
-    this.setupButtons();
+//    this.setupStartButtons();
+//    this.setupSystemButtons();
+    this.setupInitialize();
 
 }
 
@@ -113,8 +115,8 @@ protoMS.setupModeContainer = function(){
     this.modeContainer = new PIXI.DisplayObjectContainer();
 
     this.modeContainer.resizeFunc = function (resizeParams) {
-        this.scale.x = resizeParams.scaleDeltaMin
-        this.scale.y = resizeParams.scaleDeltaMin
+        this.scale.x = resizeParams.scaleDeltaMax;
+        this.scale.y = resizeParams.scaleDeltaMax;
         this.position.x = resizeParams.deviceWidth / 2;
         this.position.y = resizeParams.deviceHeight / 2;
 //        if(resizeParams.orientationType)
@@ -175,7 +177,40 @@ protoMS.setupBackground = function(){
     this.modeContainer.addChildAt(this.backgroundElement,0);
 }
 
-protoMS.setupButtons = function(){
+protoMS.setupSystemButtons = function(){
+    var img = new Image();
+    img.src = "./img/home_account.png"
+    var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
+    var homeTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 180, 172));
+    var homeButton = new PIXI.Sprite(homeTexture);
+
+    homeButton.scale.x = 0.6;
+    homeButton.scale.y = 0.6;
+
+    homeButton.anchor.x = 0.5;
+    homeButton.anchor.y = 0.5;
+
+    homeButton.position.x = -415;
+    homeButton.position.y = -170;
+
+    var accountTexture = new PIXI.Texture(texture, new PIXI.Rectangle(190, 0, 190, 172));
+    var account = new PIXI.Sprite(accountTexture);
+
+    account.scale.x = 0.6;
+    account.scale.y = 0.6;
+
+    account.anchor.x = 0.5;
+    account.anchor.y = 0.5;
+
+    account.position.x = 410;
+    account.position.y = -170;
+
+    this.modeContainer.addChildAt(homeButton,1)
+    this.modeContainer.addChildAt(account,1)
+
+}
+
+protoMS.setupStartButtons = function(){
     var img = new Image();
     img.src = "./img/pfr_pff.png"
     var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
@@ -213,4 +248,93 @@ protoMS.setupButtons = function(){
 
     this.modeContainer.addChildAt(playForReal,1);
     this.modeContainer.addChildAt(playForFun,1);
+}
+
+protoMS.setupInitialize = function(){
+
+    this.loadingContainer = new PIXI.DisplayObjectContainer();
+
+    var initializeText = new PIXI.Text("Initialization...", {fill:"#f4ad30",font:"bold 20pt Helvetica"})
+    initializeText.anchor.x = 0.5;
+    initializeText.anchor.y = 0.5;
+
+    initializeText.position.x = 100;
+    initializeText.position.y = 60;
+
+    this.loadingBalls = this.createLoadingBalls();
+
+
+    for(var i=0;i<5;i++) {
+        this.loadingContainer.addChildAt(this.loadingBalls[i],0);
+    }
+
+    this.loadingContainer.addChildAt(initializeText,0);
+
+    this.loadingContainer.position.x = -100;
+    this.loadingContainer.position.y = 100;
+
+    this.modeContainer.addChildAt(this.loadingContainer,1);
+
+}
+
+protoMS.createLoadingBalls = function(){
+    var img = new Image();
+    img.src = "./img/loader.png";
+    var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT)
+    var balls = [];
+    for(var i=0;i<5;i++) {
+        var loadTexture = new PIXI.Texture(texture, new PIXI.Rectangle(38, 0, 39, 40));
+        var load = new PIXI.Sprite(loadTexture)
+        load.position.x = i*45;
+        load.anchor.x = 0.5;
+        load.anchor.y = 0.5;
+        load.secondState = function (flag) {
+            var x = 38;
+            if (flag) {
+                x = 0;
+            }
+            var loadTexture = new PIXI.Texture(texture, new PIXI.Rectangle(x, 0, 39, 40));
+            this.setTexture(loadTexture);
+        }
+        balls.push(load)
+    }
+
+    return balls;
+}
+
+protoMS.gameLoading = function(callback){
+    var currentIndex = 0;
+
+    var intervalTimer = setInterval(function(){
+
+        if(currentIndex)
+        {
+            this.loadingBalls[currentIndex-1].secondState(false);
+            this.loadingBalls[currentIndex].secondState(true);
+        }
+        else
+        {
+            this.loadingBalls[4].secondState(false);
+            this.loadingBalls[0].secondState(true);
+        }
+
+        if(currentIndex == 4)
+            currentIndex = 0;
+        else
+            currentIndex++;
+
+
+
+    }.bind(this),200);
+
+    var loadingTimer = setTimeout(function(){
+        clearInterval(intervalTimer);
+        callback.call(this);
+    }.bind(this),5000);
+}
+
+protoMS.showBaseElements = function(){
+    this.loadingContainer.removeChildren();
+    this.setupStartButtons();
+    this.setupSystemButtons();
 }

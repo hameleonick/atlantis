@@ -52,7 +52,8 @@ protoGA.initAssetsLoader = function(){
         "./img/coral_right.png",
         "./img/coral_left.png",
         "./img/symbols-anim.png",
-        "./img/pfr_pff.png"
+        "./img/pfr_pff.png",
+        "./img/loader.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);
@@ -60,6 +61,7 @@ protoGA.initAssetsLoader = function(){
     this.assetLoader.addEventListener("onComplete",function(e){
         this.setupGame();
         this.run();
+        this.loadGame();
     }.bind(this));
 
 }
@@ -78,6 +80,12 @@ protoGA.setupStage = function(){
 
 protoGA.setupScreens = function(){
     this.modeScreen = new ModeScreen(this.gameStage);
+}
+
+protoGA.loadGame = function(){
+    this.modeScreen.gameLoading(function(){
+        this.showBaseElements();
+    })
 }
 
 protoGA.setupBackground = function(){
@@ -141,7 +149,7 @@ protoGA.setupBackground = function(){
 
 protoGA.run = function(){
 
-    this.renderer = new PIXI.CanvasRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
+    this.renderer = new PIXI.autoDetectRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
     this.resize();
     document.body.appendChild(this.renderer.view);
 
