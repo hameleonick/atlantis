@@ -12,24 +12,37 @@ function getResizeParams(){
      */
     var standartWidth = 640;
     var standartHeight = 960;
-    this.deviceWidth = window.innerWidth;
-    this.deviceHeight = window.innerHeight;
+    var deviceWidth = window.innerWidth;
+    var deviceHeight = window.innerHeight;
     var orientationType = 0; // 0:portrait; 1:landscape
+    var ratio = deviceHeight / deviceWidth;
     if(window.innerWidth > window.innerHeight)
     {
         standartWidth = 960;
         standartHeight = 640;
         orientationType = 1;
+
+        ratio = deviceWidth/  deviceHeight
     }
 
-    var scaleWidthFactor = (this.deviceWidth / standartWidth);
-    var scaleHeightFactor = (this.deviceHeight / standartHeight);
+
+
+    var scaleWidthFactor = (deviceWidth / standartWidth);
+    var scaleHeightFactor = (deviceHeight / standartHeight);
 
     var scaleDeltaMin = Math.min(scaleWidthFactor, scaleHeightFactor);
     var scaleDeltaMax = Math.max(scaleWidthFactor, scaleHeightFactor);
 
-    var resizeParams = {orientationType: orientationType,deviceWidth: this.deviceWidth, deviceHeight:this.deviceHeight,scaleWidthFactor:scaleWidthFactor, scaleHeightFactor:scaleHeightFactor, scaleDeltaMin:scaleDeltaMin, scaleDeltaMax:scaleDeltaMax};
+    var resizeParams = {ratio: ratio, orientationType: orientationType,deviceWidth: deviceWidth, deviceHeight:deviceHeight,scaleWidthFactor:scaleWidthFactor, scaleHeightFactor:scaleHeightFactor, scaleDeltaMin:scaleDeltaMin, scaleDeltaMax:scaleDeltaMax};
 
     return resizeParams;
 
 }
+
+
+//1024 768 1.333333333333
+//2048 1536 1.333333333
+
+//1280 768 1.6
+
+// 960 640 1.5

@@ -8,25 +8,22 @@ function ModeScreen(gameStage){
 
 var protoMS = ModeScreen.prototype;
 
-protoMS.initialize = function(gameStage){
+protoMS.initialize = function(game){
 
-    this.gameStage = gameStage;
-
-    this.deviceWidth = window.innerWidth;
-    this.deviceHeight = window.innerHeight;
+    this.gameStage = game.gameStage;
+    this.game = game;
 
     this.modeContainer = null;
-
+    this.elementsToResize = [];
     this.setupView();
-
 }
 
 protoMS.setupView = function(){
 
     this.setupModeContainer();
     this.setupAdditionalElements();
-//    this.setupStartButtons();
-//    this.setupSystemButtons();
+    this.setupStartButtons();
+    this.setupSystemButtons();
     this.setupInitialize();
 
 }
@@ -115,66 +112,45 @@ protoMS.setupModeContainer = function(){
     this.modeContainer = new PIXI.DisplayObjectContainer();
 
     this.modeContainer.resizeFunc = function (resizeParams) {
-        this.scale.x = resizeParams.scaleDeltaMax;
-        this.scale.y = resizeParams.scaleDeltaMax;
+
+        var scale = resizeParams.scaleDeltaMax;
+        if(resizeParams.ratio<=1.35)
+        {
+            scale = resizeParams.scaleDeltaMin;
+        }
+        this.scale.x = scale;
+        this.scale.y = scale;
         this.position.x = resizeParams.deviceWidth / 2;
         this.position.y = resizeParams.deviceHeight / 2;
-//        if(resizeParams.orientationType)
-//        {
-//            this.rotation = 1.57;
-//        }
-//        else
-//            this.rotation = 0;
     }
 
-    window.elementsToResize.push(this.modeContainer);
-    this.gameStage.addChildAt(this.modeContainer,1);
+    this.elementsToResize.push(this.modeContainer);
+
 }
 
-protoMS.setupBackground = function(){
-    this.backgroundElement = new PIXI.Sprite.fromImage("./img/bg.png");
-
-    this.backgroundElement.anchor.x = 0.5
-    this.backgroundElement.anchor.y = 0.5
-
-//    this.backgroundElement.scale.x = 0.75
-//    this.backgroundElement.scale.y = 0.75
-
-    this.backgroundElement.resizeFunc = function(resizeParams){
-        console.log(this)
-        console.log(resizeParams.deviceWidth + " " + this.width*resizeParams.scaleDeltaMin)
-        console.log(resizeParams.deviceHeight + " " + this.height*resizeParams.scaleDeltaMin)
-        var deltaW = 1;
-        var deltaH = 1;
-        if(resizeParams.deviceWidth > this.width*resizeParams.scaleDeltaMin)
-        {
-         //alert(resizeParams.deviceWidth + " " + this.width)
-//            delta =
-        }
+protoMS.showModeScreen = function(show, loadGame){
+    if(show){
+        this.resize();
+        this.gameStage.addChildAt(this.modeContainer,1);
+        if(loadGame)
+            this.loadGame();
         else
         {
-             deltaW = resizeParams.deviceWidth / this.width/resizeParams.scaleDeltaMin;
+            this.showPlayButtons(true);
+            this.showNavButtons(true);
         }
-
-        if(resizeParams.deviceHeight > this.height*resizeParams.scaleDeltaMin)
-        {
-            //alert(resizeParams.deviceHeight + " " + this.height)
-
-        }
-        else
-        {
-            deltaH = resizeParams.deviceHeight / this.height/resizeParams.scaleDeltaMin;
-        }
-
-        console.log(deltaW +" "+ deltaH)
-        this.scale.x = (deltaW>deltaH) ? deltaW : deltaH
-        this.scale.y = (deltaW>deltaH) ? deltaW : deltaH
-
     }
-//    this.backgroundElement.position.x = 0;
-//    this.backgroundElement.position.y = 0;
-    window.elementsToResize.push(this.backgroundElement);
-    this.modeContainer.addChildAt(this.backgroundElement,0);
+    else{
+        this.modeContainer.removeChildren();
+        this.gameStage.removeChildAt(1);
+        delete this.game.modeScreen;
+    }
+}
+
+protoMS.loadGame = function(){
+    this.gameLoading(false, function(){
+        this.showBaseElements();
+    }.bind(this))
 }
 
 protoMS.setupSystemButtons = function(){
@@ -182,61 +158,68 @@ protoMS.setupSystemButtons = function(){
     img.src = "./img/home_account.png"
     var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
     var homeTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 180, 172));
-    var homeButton = new PIXI.Sprite(homeTexture);
+    this.homeButton = new PIXI.Sprite(homeTexture);
 
-    homeButton.scale.x = 0.6;
-    homeButton.scale.y = 0.6;
+    this.homeButton.scale.x = 0.6;
+    this.homeButton.scale.y = 0.6;
 
-    homeButton.anchor.x = 0.5;
-    homeButton.anchor.y = 0.5;
+    this.homeButton.anchor.x = 0.5;
+    this.homeButton.anchor.y = 0.5;
 
-    homeButton.position.x = -415;
-    homeButton.position.y = -170;
+    this.homeButton.position.x = -415;
+    this.homeButton.position.y = -170;
+
+    this.homeButton.visible = false;
 
     var accountTexture = new PIXI.Texture(texture, new PIXI.Rectangle(190, 0, 190, 172));
-    var account = new PIXI.Sprite(accountTexture);
+    this.account = new PIXI.Sprite(accountTexture);
 
-    account.scale.x = 0.6;
-    account.scale.y = 0.6;
+    this.account.scale.x = 0.6;
+    this.account.scale.y = 0.6;
 
-    account.anchor.x = 0.5;
-    account.anchor.y = 0.5;
+    this.account.anchor.x = 0.5;
+    this.account.anchor.y = 0.5;
 
-    account.position.x = 410;
-    account.position.y = -170;
+    this.account.position.x = 410;
+    this.account.position.y = -170;
 
-    this.modeContainer.addChildAt(homeButton,1)
-    this.modeContainer.addChildAt(account,1)
+    this.account.visible = false;
+
+    this.modeContainer.addChildAt(this.homeButton,1)
+    this.modeContainer.addChildAt(this.account,1)
 
 }
 
 protoMS.setupStartButtons = function(){
+    var self = this;
     var img = new Image();
     img.src = "./img/pfr_pff.png"
     var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
     var playForRealTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 245, 57));
-    var playForReal = new PIXI.Sprite(playForRealTexture);
+    this.playForReal = new PIXI.Sprite(playForRealTexture);
 
-    playForReal.scale.x = 1.1;
-    playForReal.scale.y = 1.1;
-    playForReal.anchor.x = 0.5;
-    playForReal.anchor.y = 0.5;
+    this.playForReal.scale.x = 1.1;
+    this.playForReal.scale.y = 1.1;
+    this.playForReal.anchor.x = 0.5;
+    this.playForReal.anchor.y = 0.5;
 
-    playForReal.position.y = 100
+    this.playForReal.position.y = 100;
+    this.playForReal.visible = false
 
     var playForRealText = new PIXI.Text("Play For Real", {fill:"black",font:"bold 20pt Helvetica"})
     playForRealText.anchor.x = 0.5;
     playForRealText.anchor.y = 0.5;
 
-    playForReal.addChild(playForRealText);
+    this.playForReal.addChild(playForRealText);
 
     var playForFunTexture = new PIXI.Texture(texture, new PIXI.Rectangle(0, 58, 245, 57));
-    var playForFun = new PIXI.Sprite(playForFunTexture);
+    this.playForFun = new PIXI.Sprite(playForFunTexture);
 
-    playForFun.anchor.x = 0.5;
-    playForFun.anchor.y = 0.5;
+    this.playForFun.anchor.x = 0.5;
+    this.playForFun.anchor.y = 0.5;
 
-    playForFun.position.y = 170
+    this.playForFun.position.y = 170;
+    this.playForFun.visible = false;
 
     var playForFunText = new PIXI.Text("Play For Fun", {fill:"black",font:"bold 20pt Helvetica"})
     playForFunText.anchor.x = 0.5;
@@ -244,10 +227,25 @@ protoMS.setupStartButtons = function(){
     playForFunText.scale.x = 1.1;
     playForFunText.scale.y = 1.1;
 
-    playForFun.addChild(playForFunText)
+    this.playForFun.addChild(playForFunText);
 
-    this.modeContainer.addChildAt(playForReal,1);
-    this.modeContainer.addChildAt(playForFun,1);
+    this.playForFun.interactive = true;
+    this.playForFun.buttonMode = true;
+
+    this.playForFun.mousedown = this.playForFun.touchstart = function(data) {
+        this.data = data;
+        this.alpha = 0.8;
+    }
+
+    this.playForFun.mouseup = this.playForFun.mouseupoutside = this.playForFun.touchend = this.playForFun.touchendoutside = function (data) {
+        this.alpha = 1
+        // set the interaction data to null
+        this.data = null;
+        self.startPlayForFunGame();
+    };
+
+    this.modeContainer.addChildAt(this.playForReal,1);
+    this.modeContainer.addChildAt(this.playForFun,1);
 }
 
 protoMS.setupInitialize = function(){
@@ -259,7 +257,16 @@ protoMS.setupInitialize = function(){
     initializeText.anchor.y = 0.5;
 
     initializeText.position.x = 100;
-    initializeText.position.y = 60;
+    initializeText.position.y = 50;
+
+    var splashOrnament =  new PIXI.Sprite.fromImage("./img/splash_ornament.png");
+    splashOrnament.anchor.x = 0.5;
+    splashOrnament.anchor.y = 0.5;
+
+    splashOrnament.position.y = 90;
+    splashOrnament.position.x = 90;
+
+    splashOrnament.visible = false;
 
     this.loadingBalls = this.createLoadingBalls();
 
@@ -269,9 +276,16 @@ protoMS.setupInitialize = function(){
     }
 
     this.loadingContainer.addChildAt(initializeText,0);
+    this.loadingContainer.addChildAt(splashOrnament,0);
 
-    this.loadingContainer.position.x = -100;
+    this.loadingContainer.showOrnament = function(show){
+        splashOrnament.visible = show;
+    };
+
+    this.loadingContainer.position.x = -80;
     this.loadingContainer.position.y = 100;
+
+    this.loadingContainer.visible = false;
 
     this.modeContainer.addChildAt(this.loadingContainer,1);
 
@@ -302,9 +316,13 @@ protoMS.createLoadingBalls = function(){
     return balls;
 }
 
-protoMS.gameLoading = function(callback){
+protoMS.gameLoading = function(showOrnament, callback){
     var currentIndex = 0;
-
+    for(var i=0;i<5;i++) {
+        this.loadingBalls[i].secondState(false);
+    }
+    this.loadingContainer.showOrnament(showOrnament);
+    this.showLoadingContainer(true);
     var intervalTimer = setInterval(function(){
 
         if(currentIndex)
@@ -329,12 +347,47 @@ protoMS.gameLoading = function(callback){
 
     var loadingTimer = setTimeout(function(){
         clearInterval(intervalTimer);
-        callback.call(this);
-    }.bind(this),5000);
+        if(callback)
+            callback.call(this);
+    }.bind(this),1500);
 }
 
 protoMS.showBaseElements = function(){
-    this.loadingContainer.removeChildren();
-    this.setupStartButtons();
-    this.setupSystemButtons();
+    this.showLoadingContainer(false);
+    this.showPlayButtons(true);
+    this.showNavButtons(true);
+}
+
+protoMS.showLoadingContainer = function(show){
+    this.loadingContainer.visible = show;
+}
+
+protoMS.showPlayButtons = function(show){
+    this.playForFun.visible = show;
+    this.playForReal.visible = show;
+}
+
+protoMS.showNavButtons = function(show){
+    this.homeButton.visible = show;
+    this.account.visible = show;
+}
+
+protoMS.startPlayForFunGame = function(){
+    this.showLoadingContainer(true);
+    this.showPlayButtons(false);
+    this.gameLoading(true, function(){
+        this.showModeScreen(false);
+        this.game.setupGameScreen();
+    }.bind(this));
+
+
+}
+
+protoMS.resize = function(){
+//    setTimeout(function() {
+    var resizeParams = getResizeParams();
+    for (var i = 0; i < this.elementsToResize.length; i++) {
+        this.elementsToResize[i].resizeFunc(resizeParams)
+    }
+//    }.bind(this),100);
 }

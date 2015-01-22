@@ -53,7 +53,9 @@ protoGA.initAssetsLoader = function(){
         "./img/coral_left.png",
         "./img/symbols-anim.png",
         "./img/pfr_pff.png",
-        "./img/loader.png"
+        "./img/loader.png",
+        "./img/splash_ornament.png",
+        "./img/spin_sprite.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);
@@ -61,31 +63,30 @@ protoGA.initAssetsLoader = function(){
     this.assetLoader.addEventListener("onComplete",function(e){
         this.setupGame();
         this.run();
-        this.loadGame();
+        this.setupModeScreen(true);
     }.bind(this));
 
 }
 
-protoGA.setupGame = function(){
+protoGA.setupGame = function(params){
 
     this.setupStage();
     this.setupBackground();
-    this.setupScreens();
+}
+
+protoGA.setupModeScreen = function(loadGame){
+    this.modeScreen = new ModeScreen(this);
+    this.modeScreen.showModeScreen(true, loadGame);
+}
+
+protoGA.setupGameScreen = function(){
+    this.gameScreen = new GameScreen(this);
+    this.gameScreen.showGameScreen(true);
 }
 
 protoGA.setupStage = function(){
     this.gameStage = new PIXI.Stage(0x000613,true);
     this.gameStage.setBackgroundColor(0x000613);
-}
-
-protoGA.setupScreens = function(){
-    this.modeScreen = new ModeScreen(this.gameStage);
-}
-
-protoGA.loadGame = function(){
-    this.modeScreen.gameLoading(function(){
-        this.showBaseElements();
-    })
 }
 
 protoGA.setupBackground = function(){
