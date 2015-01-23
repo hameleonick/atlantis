@@ -103,21 +103,29 @@ protoGS.setupSlotsContainer = function(){
     var slotsContainer = new PIXI.DisplayObjectContainer();
     slotsContainer.mask = maskframe;
     var slots = this.generateSlots();
-    slotsContainer.addChild(slots[0][0])
-    slotsContainer.addChild(slots[0][1])
-    slotsContainer.addChild(slots[0][2])
-    slotsContainer.addChild(slots[1][0])
-    slotsContainer.addChild(slots[1][1])
-    slotsContainer.addChild(slots[1][2])
-    slotsContainer.addChild(slots[2][0])
-    slotsContainer.addChild(slots[2][1])
-    slotsContainer.addChild(slots[2][2])
-    slotsContainer.addChild(slots[3][0])
-    slotsContainer.addChild(slots[3][1])
-    slotsContainer.addChild(slots[3][2])
-    slotsContainer.addChild(slots[4][0])
-    slotsContainer.addChild(slots[4][1])
-    slotsContainer.addChild(slots[4][2])
+//    slotsContainer.addChild(slots[0][0])
+//    slotsContainer.addChild(slots[0][1])
+//    slotsContainer.addChild(slots[0][2])
+//    slotsContainer.addChild(slots[1][0])
+//    slotsContainer.addChild(slots[1][1])
+//    slotsContainer.addChild(slots[1][2])
+//    slotsContainer.addChild(slots[2][0])
+//    slotsContainer.addChild(slots[2][1])
+//    slotsContainer.addChild(slots[2][2])
+//    slotsContainer.addChild(slots[3][0])
+//    slotsContainer.addChild(slots[3][1])
+//    slotsContainer.addChild(slots[3][2])
+//    slotsContainer.addChild(slots[4][0])
+//    slotsContainer.addChild(slots[4][1])
+//    slotsContainer.addChild(slots[4][2])
+
+    for(var i=0;i<5;i++)
+    {
+        for(var j=0;j<4;j++)
+        {
+            slotsContainer.addChild(slots[i][j])
+        }
+    }
 
 
     window.testSlot = slots[0][0];
