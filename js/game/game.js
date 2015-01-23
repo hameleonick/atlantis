@@ -31,6 +31,8 @@ protoGA.initialize = function(){
 
     this.assetLoader = null;
 
+    this.currentScreen = null;
+
     this.gameStage = null;
 
     this.setupBaseGameEventListeners();
@@ -55,7 +57,11 @@ protoGA.initAssetsLoader = function(){
         "./img/pfr_pff.png",
         "./img/loader.png",
         "./img/splash_ornament.png",
-        "./img/spin_sprite.png"
+        "./img/spin_sprite.png",
+        "./img/bet_sprite.png",
+        "./img/ASButtons.png",
+        "./img/243.png",
+        "./img/externals/brands/PCC/menu_tabs.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);
@@ -77,11 +83,13 @@ protoGA.setupGame = function(params){
 protoGA.setupModeScreen = function(loadGame){
     this.modeScreen = new ModeScreen(this);
     this.modeScreen.showModeScreen(true, loadGame);
+    this.currentScreen = this.modeScreen;
 }
 
 protoGA.setupGameScreen = function(){
     this.gameScreen = new GameScreen(this);
     this.gameScreen.showGameScreen(true);
+    this.currentScreen = this.gameScreen;
 }
 
 protoGA.setupStage = function(){
@@ -164,17 +172,24 @@ protoGA.run = function(){
 
 }
 
-protoGA.resize = function(){
-    setTimeout(function() {
+protoGA.resize = function(currentScreen){
+    if(!this.renderer)
+        return;
+//    setTimeout(function() {
         var resizeParams = getResizeParams();
         this.renderer.resize(resizeParams.deviceWidth, resizeParams.deviceHeight)
         for (var i = 0; i < elementsToResize.length; i++) {
             elementsToResize[i].resizeFunc(resizeParams)
         }
-    }.bind(this),100);
+
+        if(currentScreen && this.currentScreen){
+//            alert(this.currentScreen)
+            this.currentScreen.resize();
+        }
+//    }.bind(this),100);
 }
 
 protoGA.setupBaseGameEventListeners = function(){
-    window.addEventListener('resize', this.resize.bind(this), false);
-    window.addEventListener('orientationchange', this.resize.bind(this), false);
+    window.addEventListener('resize', this.resize.bind(this, true), false);
+    window.addEventListener('orientationchange', this.resize.bind(this, true), false);
 }

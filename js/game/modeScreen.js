@@ -142,7 +142,9 @@ protoMS.showModeScreen = function(show, loadGame){
     }
     else{
         this.modeContainer.removeChildren();
-        this.gameStage.removeChildAt(1);
+        while(this.gameStage.children.length>1){
+            this.gameStage.removeChildAt(1);
+        }
         delete this.game.modeScreen;
     }
 }
@@ -349,7 +351,7 @@ protoMS.gameLoading = function(showOrnament, callback){
         clearInterval(intervalTimer);
         if(callback)
             callback.call(this);
-    }.bind(this),1500);
+    }.bind(this),300);
 }
 
 protoMS.showBaseElements = function(){
