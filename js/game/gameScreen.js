@@ -102,33 +102,18 @@ protoGS.setupSlotsContainer = function(){
 
     var slotsContainer = new PIXI.DisplayObjectContainer();
     slotsContainer.mask = maskframe;
-    var slots = this.generateSlots();
-//    slotsContainer.addChild(slots[0][0])
-//    slotsContainer.addChild(slots[0][1])
-//    slotsContainer.addChild(slots[0][2])
-//    slotsContainer.addChild(slots[1][0])
-//    slotsContainer.addChild(slots[1][1])
-//    slotsContainer.addChild(slots[1][2])
-//    slotsContainer.addChild(slots[2][0])
-//    slotsContainer.addChild(slots[2][1])
-//    slotsContainer.addChild(slots[2][2])
-//    slotsContainer.addChild(slots[3][0])
-//    slotsContainer.addChild(slots[3][1])
-//    slotsContainer.addChild(slots[3][2])
-//    slotsContainer.addChild(slots[4][0])
-//    slotsContainer.addChild(slots[4][1])
-//    slotsContainer.addChild(slots[4][2])
+    this.slots = this.generateSlots();
 
     for(var i=0;i<5;i++)
     {
         for(var j=0;j<4;j++)
         {
-            slotsContainer.addChild(slots[i][j])
+            slotsContainer.addChild(this.slots[i][j])
         }
     }
 
 
-    window.testSlot = slots[0][0];
+    window.testSlot = this.slots[0][0];
 
     frame.addChild(slotsContainer)
 
@@ -139,6 +124,44 @@ protoGS.setupSlotsContainer = function(){
     this.gameContainer.addChildAt(ways243,1);
 }
 
+protoGS.runSlots = function(slots, callback){
+var self = this;
+    new TweenMax.to(slots, 0.5, {y:"-=15", /*delay:0.5,*/ /*ease:Back.easeIn,*/ onComplete:function(){
+
+//        new TweenMax.to(self.slots[0], 0.2, {y:"+=140",onComplete:function(){
+//
+//        }});
+        if(callback)
+            callback();
+        self.runningSlots(slots);
+
+    }});
+}
+
+protoGS.runningSlots = function(slots){
+    var slotsList = slots;
+    var self = this;
+    var anim = new TweenMax.to(slotsList, 0.5, {y:"+=600",onUpdate:function(){
+//        console.log("GOOD NEWS")
+        console.log(slotsList[3].position.y)
+        if(slotsList[3].position.y>=200)
+        {
+
+            var slot = slotsList.pop();
+            slot.changeState();
+            slot.position.y = -313;
+            slotsList.unshift(slot);
+            anim.kill();
+            self.runningSlots(slotsList);
+
+
+        }
+    }, onComplete:function(){
+
+
+    }});
+}
+// y 202
 protoGS.generateSlots = function(){
     var img = new Image();
     img.src = "./img/symbols-anim.png"
@@ -173,7 +196,7 @@ protoGS.generateSlots = function(){
                 deltaY = 30;
             if(i)
                 deltaX = 37;
-            slot.position.y = -183 + (j*(100+deltaY));
+            slot.position.y = -313 + (j*(100+deltaY));
             slot.position.x = -335 + (i*(100+deltaX));
             slot.scale.x = 1.2;
             slot.scale.y = 1.2;
@@ -185,6 +208,7 @@ protoGS.generateSlots = function(){
 }
 
 protoGS.setupSpinContainer = function(){
+    var self = this;
 
     this.spinContainer = new PIXI.DisplayObjectContainer();
 
@@ -212,6 +236,19 @@ protoGS.setupSpinContainer = function(){
         this.alpha = 1
         // set the interaction data to null
         this.data = null;
+        self.runSlots(self.slots[0],function(){
+//            self.runSlots(self.slots[1], function(){
+//                self.runSlots(self.slots[2], function(){
+//                    self.runSlots(self.slots[3], function(){
+//                        self.runSlots(self.slots[4]);
+//                    });
+//                });
+//            });
+        });
+
+
+
+
     };
 
     spin.changeState = function(){
