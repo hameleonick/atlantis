@@ -54,8 +54,8 @@ protoGS.setupGameContainer = function(){
         }
         this.scale.x = scale;
         this.scale.y = scale;
-        this.position.x = resizeParams.deviceWidth / 2;
-        this.position.y = resizeParams.deviceHeight / 2;
+        this.position.x = resizeParams.deviceWidth / 2  ;
+        this.position.y = resizeParams.deviceHeight / 2 + 40*scale;
     }
 
     this.elementsToResize.push(this.gameContainer);
@@ -312,7 +312,7 @@ protoGS.generateSlots = function(){
                 clearInterval(winTimer)
             }
             slide++;
-        },60)
+        },80)
 
     }
 
