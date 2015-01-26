@@ -62,7 +62,9 @@ protoGA.initAssetsLoader = function(){
         "./img/ASButtons.png",
         "./img/243.png",
         "./img/externals/brands/PCC/menu_tabs.png",
-        "./img/symbols-anim-blur.png"
+        "./img/symbols-anim-blur.png",
+        "./img/symbolsAnim/general.png",
+        "./img/jpTicker.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);

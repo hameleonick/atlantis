@@ -38,6 +38,7 @@ protoGS.setupView = function(){
     this.setupSpinContainer();
     this.setupTopBar();
     this.setupMenu();
+    this.setupJackpots();
 
 };
 
@@ -282,7 +283,37 @@ protoGS.generateSlots = function(){
         var slotsList = this.slots;
         var self = this;
         var delta = slotsList[0].position.y+313;
-        TweenMax.to(slotsList, 0.3, {y:"-="+delta,ease:Back.easeOut, onUpdate:function(){}});
+        TweenMax.to(slotsList, 0.3, {y:"-="+delta,ease:Back.easeOut, onComplete:function(){
+            var index =  Math.floor((Math.random() * 3) + 1);
+            setTimeout(function(){slotsList[index].showWinAnimation();},(4-self.drumIndex)*70);
+        }});
+    }
+
+    var imgWin = new Image();
+    imgWin.src = "./img/symbolsAnim/general.png"
+    var baseTextureWin = new PIXI.BaseTexture(imgWin, PIXI.scaleModes.DEFAULT);
+
+    var showWinAnimation = function(){
+        var slide = 0;
+        var self = this;
+        var count = 0;
+        var winTimer = setInterval(function(){
+            if(slide==20) {
+                slide = 0;
+                count++;
+            }
+
+
+            var winTexture =  new PIXI.Texture(baseTextureWin, new PIXI.Rectangle(slide*120, 0, 120, 120));
+//            var win = new PIXI.Sprite(winTexture);
+            self.getChildAt(0).setTexture(winTexture);
+            if(count == 3)
+            {
+                clearInterval(winTimer)
+            }
+            slide++;
+        },60)
+
     }
 
 
@@ -306,6 +337,12 @@ protoGS.generateSlots = function(){
             slotObjs[i].slotCurrentIndex = j;
             slot.configurationSlots = this.configurationSlots[i];
             slot.changeState = changeState;
+            slot.showWinAnimation = showWinAnimation;
+            var winTexture =  new PIXI.Texture(baseTextureWin, new PIXI.Rectangle(0, 0, 120, 120));
+            var win = new PIXI.Sprite(winTexture);
+            win.position.x = -15;
+            win.position.y = -10;
+            slot.addChild(win);
             var deltaY = 0;
             var deltaX = 0
             if(j)
@@ -506,6 +543,29 @@ protoGS.setupMenu = function(){
     this.elementsToResize.push(menuButton);
 
     this.gameStage.addChildAt(menuButton, 1);
+}
+
+protoGS.setupJackpots = function(){
+    var img = new Image();
+    img.src = "./img/jpTicker.png";
+    var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
+    var herculesTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 254, 62));
+    var hercules = new PIXI.Sprite(herculesTexture);
+    hercules.position.x = -315;
+    hercules.position.y = -240;
+    hercules.anchor.x = 0.5
+    hercules.anchor.y = 0.5
+
+    var poseidonTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 63, 254, 62));
+    var poseidon = new PIXI.Sprite(poseidonTexture);
+    poseidon.position.x = 123;
+    poseidon.position.y = -240;
+    poseidon.anchor.x = 0.5
+    poseidon.anchor.y = 0.5
+
+
+    this.gameContainer.addChild(hercules)
+    this.gameContainer.addChild(poseidon)
 }
 
 protoGS.showGameScreen = function(show){
