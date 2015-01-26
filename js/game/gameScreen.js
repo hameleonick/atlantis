@@ -27,6 +27,8 @@ protoGS.getSlotsConfiguration = function(){
         [5,7,6,11,12,1,9,6,11,2,9,11,12,5,10,12,11,10,12,8,10,3,11,9,7,4,9,11,10,3,11,9,7,4,9,11,8,3,11,6,7,4,11,2,7,10,9,6,8,5,7,4,9,6,5,9,7,8,5,11,5,7,4,9,6,8,5,7,8],
         [10,1,11,6,8,2,9,6,11,3,9,12,7,6,12,7,6,11,7,6,5,3,9,5,11,4,10,5,9,3,6,5,11,4,10,8,7,2,12,8,10,4,11,10,12,6,11,9,8,10,12,4,10,12,5,12,9,8,5,10,8,12,4,10,12,7,5,8,7],
         [7,4,11,6,12,1,9,6,11,2,9,11,5,12,1,6,9,8,7,12,10,3,12,10,9,4,6,10,12,3,5,10,9,4,6,10,12,3,10,12,7,2,11,9,8,6,9,8,7,5,9,4,8,7,5,8,10,7,6,8,5,7,4,11,8,7,6,12,11]];
+
+    this.winCombination = [4, 15 , 30 , 8, 29];
 };
 
 protoGS.setupView = function(){
@@ -102,18 +104,18 @@ protoGS.setupSlotsContainer = function(){
 
     var slotsContainer = new PIXI.DisplayObjectContainer();
     slotsContainer.mask = maskframe;
-    this.slots = this.generateSlots();
+    this.slotObjs = this.generateSlots();
 
     for(var i=0;i<5;i++)
     {
         for(var j=0;j<4;j++)
         {
-            slotsContainer.addChild(this.slots[i][j])
+            slotsContainer.addChild(this.slotObjs[i].slots[j])
         }
     }
 
 
-    window.testSlot = this.slots[0][0];
+    window.testSlot = this.slotObjs;
 
     frame.addChild(slotsContainer)
 
@@ -124,39 +126,85 @@ protoGS.setupSlotsContainer = function(){
     this.gameContainer.addChildAt(ways243,1);
 }
 
-protoGS.runSlots = function(slots, callback){
+protoGS.runSlots = function(){
+    this.slotObjs[0].startSlotRunning();
+    setTimeout(function(){
+        this.slotObjs[1].startSlotRunning();
+        setTimeout(function(){
+            this.slotObjs[2].startSlotRunning();
+            setTimeout(function(){
+                this.slotObjs[3].startSlotRunning();
+                setTimeout(function(){
+                    this.slotObjs[4].startSlotRunning();
+                }.bind(this),70)
+            }.bind(this),70)
+        }.bind(this),70)
+    }.bind(this),70)
+}
+
+protoGS.runSlotsOLD = function(slots, callback){
 var self = this;
-    new TweenMax.to(slots, 0.5, {y:"-=15", /*delay:0.5,*/ /*ease:Back.easeIn,*/ onComplete:function(){
+    new TweenMax.to(slots, 0.4, {y:"+=125", /*delay:0.5,*/ ease:Back.easeIn, onComplete:function(){
 
 //        new TweenMax.to(self.slots[0], 0.2, {y:"+=140",onComplete:function(){
 //
 //        }});
-        if(callback)
-            callback();
+
         self.runningSlots(slots);
 
+        window.stopSlots = false;
+        window.count = 0;
+        setTimeout(function(){
+            stopSlots = true;
+        },5000)
+//        for(var j=0;j<4;j++)
+//        {
+//            console.log(j)
+//            slots[j].showBlur(true)
+//        }
+
     }});
+
+    if(callback)
+        callback();
 }
 
 protoGS.runningSlots = function(slots){
     var slotsList = slots;
     var self = this;
-    var anim = new TweenMax.to(slotsList, 0.5, {y:"+=600",onUpdate:function(){
+    var anim = new TweenMax.to(slotsList, 0.2, {y:"+=250",onUpdate:function(){
 //        console.log("GOOD NEWS")
-        console.log(slotsList[3].position.y)
+//        console.log(slotsList[3].position.y)
         if(slotsList[3].position.y>=200)
         {
 
             var slot = slotsList.pop();
             slot.changeState();
-            slot.position.y = -313;
+//
+//            console.log(slot.position.y)
+            slot.position.y = -313 + (slot.position.y-200);
             slotsList.unshift(slot);
             anim.kill();
-            self.runningSlots(slotsList);
+            if(!stopSlots)
+                self.runningSlots(slotsList);
+            else if(count<20)
+            {
+                self.runningSlots(slotsList);
+                count++;
+            }
+            else{
+                console.log("nooooo")
+                console.log(slotsList[3].position.y - 77)
+                new TweenMax.to(slotsList, 0.3, {y:"-=30", onComplete:function(){
+                    console.log("complete")
+                }});
+            }
+
 
 
         }
     }, onComplete:function(){
+        console.log("conplete")
 
 
     }});
@@ -165,31 +213,99 @@ protoGS.runningSlots = function(slots){
 protoGS.generateSlots = function(){
     var img = new Image();
     img.src = "./img/symbols-anim.png"
+    var imgBlur = new Image();
+    imgBlur.src = "./img/symbols-anim-blur.png"
     var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
-//    var wildTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, 0, 100, 100));
-//    var wild = new PIXI.Sprite(wildTexture);
+    var textureBlur = new PIXI.BaseTexture(imgBlur, PIXI.scaleModes.DEFAULT);
 
     var changeState = function(){
-        this.slotCurrentIndex++;
-        if(this.configurationSlots.length == this.slotCurrentIndex)
-            this.slotCurrentIndex = 0;
-        var slotTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[this.slotCurrentIndex]-1)*100, 100, 100));
+        this.parentObj.slotCurrentIndex++;
+        if(this.configurationSlots.length == this.parentObj.slotCurrentIndex)
+            this.parentObj.slotCurrentIndex = 0;
+
+        this.slotCurrentIndex = this.parentObj.slotCurrentIndex;
+        if(this.parentObj.blurEffect)
+            var slotTexture =  new PIXI.Texture(textureBlur, new PIXI.Rectangle(0, (this.configurationSlots[this.parentObj.slotCurrentIndex]-1)*100, 100, 100));
+        else
+            var slotTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[this.parentObj.slotCurrentIndex]-1)*100, 100, 100));
         this.setTexture(slotTexture);
     }
 
-    var slots = [];
+    var showBlur = function(show){
+        this.blurEffect = show;
+    }
+
+    var startSlotRunning = function(){
+        var self = this;
+        self.stopContinueSlots = false;
+        setTimeout(function(){
+            self.showBlur(false);
+            self.slotCurrentIndex = self.winCombination[self.drumIndex]-3;
+            self.stopContinueSlots = true;
+        },3500)
+
+        TweenMax.to(this.slots, 0.2, {y:"+=125",ease:Back.easeIn, onComplete:function(){
+            self.continueSlotRunning();
+            self.showBlur(true);
+        }});
+    }
+
+    var continueSlotRunning = function(){
+        var slotsList = this.slots;
+        var self = this;
+        var anim = new TweenMax.to(slotsList, 0.25, {y:"+=350",onUpdate:function(){
+            if(slotsList[3].position.y>=200)
+            {
+
+                var slot = slotsList.pop();
+                slot.changeState();
+//
+                slot.position.y = -313 + (slot.position.y-200);
+                slotsList.unshift(slot);
+                anim.kill();
+                if(!self.stopContinueSlots)
+                    self.continueSlotRunning();
+                else{
+                    if(self.slotCurrentIndex == self.winCombination[self.drumIndex]+1){
+                        self.stopSlots();
+                    }
+                    else
+                        self.continueSlotRunning();
+                }
+
+            }
+        }});
+    }
+
+    var stopSlots = function(){
+
+        var slotsList = this.slots;
+        var self = this;
+        var delta = slotsList[0].position.y+313;
+        TweenMax.to(slotsList, 0.3, {y:"-="+delta,ease:Back.easeOut, onUpdate:function(){}});
+    }
+
+
+//    var slots = [];
+    var slotObjs = {};
     for(var i=0;i<5;i++)
     {
+        slotObjs[i] = {slots:[], slotCurrentIndex:0};
+        slotObjs[i].startSlotRunning = startSlotRunning;
+        slotObjs[i].continueSlotRunning = continueSlotRunning;
+        slotObjs[i].showBlur = showBlur;
+        slotObjs[i].stopSlots = stopSlots;
+        slotObjs[i].drumIndex = i;
+        slotObjs[i].winCombination = this.winCombination;
         for(var j=0;j<4;j++)
         {
-            if(!slots[i])
-                slots[i] = [];
+//            if(!slots[i])11
             var slotTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[i][j]-1)*100, 100, 100));
             var slot = new PIXI.Sprite(slotTexture);
             slot.slotCurrentIndex = j;
+            slotObjs[i].slotCurrentIndex = j;
             slot.configurationSlots = this.configurationSlots[i];
             slot.changeState = changeState;
-
             var deltaY = 0;
             var deltaX = 0
             if(j)
@@ -200,11 +316,12 @@ protoGS.generateSlots = function(){
             slot.position.x = -335 + (i*(100+deltaX));
             slot.scale.x = 1.2;
             slot.scale.y = 1.2;
-            slots[i][j] = slot;
+            slotObjs[i].slots.push(slot);
+            slot.parentObj = slotObjs[i];
         }
     }
 
-    return slots;
+    return slotObjs;
 }
 
 protoGS.setupSpinContainer = function(){
@@ -236,7 +353,8 @@ protoGS.setupSpinContainer = function(){
         this.alpha = 1
         // set the interaction data to null
         this.data = null;
-        self.runSlots(self.slots[0],function(){
+        self.runSlots();
+//        self.runSlots(self.slots[0],function(){
 //            self.runSlots(self.slots[1], function(){
 //                self.runSlots(self.slots[2], function(){
 //                    self.runSlots(self.slots[3], function(){
@@ -244,7 +362,9 @@ protoGS.setupSpinContainer = function(){
 //                    });
 //                });
 //            });
-        });
+//        });
+
+
 
 
 

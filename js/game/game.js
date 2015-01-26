@@ -61,7 +61,8 @@ protoGA.initAssetsLoader = function(){
         "./img/bet_sprite.png",
         "./img/ASButtons.png",
         "./img/243.png",
-        "./img/externals/brands/PCC/menu_tabs.png"
+        "./img/externals/brands/PCC/menu_tabs.png",
+        "./img/symbols-anim-blur.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);
@@ -158,7 +159,7 @@ protoGA.setupBackground = function(){
 
 protoGA.run = function(){
 
-    this.renderer = new PIXI.autoDetectRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
+    this.renderer = new PIXI.CanvasRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
     this.resize();
     document.body.appendChild(this.renderer.view);
 
