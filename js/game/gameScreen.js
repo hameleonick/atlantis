@@ -10,6 +10,7 @@ var protoGS = GameScreen.prototype;
 
 protoGS.initialize = function(game){
 
+    window.startAllSlots = false;
     this.gameStage = game.gameStage;
     this.game = game;
 
@@ -39,8 +40,80 @@ protoGS.setupView = function(){
     this.setupTopBar();
     this.setupMenu();
     this.setupJackpots();
+    this.setupAdditionalElements()
 
 };
+
+protoGS.setupAdditionalElements = function(){
+    // 948 / 564
+
+    // 158 / 141
+
+    var turtleImg = new Image();
+    turtleImg.src = "./img/turtle.png";
+    var turtleBaseTexture = new PIXI.BaseTexture(turtleImg, PIXI.scaleModes.DEFAULT);
+    var turtleTexture =  new PIXI.Texture(turtleBaseTexture, new PIXI.Rectangle(0, 0, 158, 141));
+    var turtle = new PIXI.Sprite(turtleTexture);
+    this.Turtle = turtle;
+    turtle.currentSlideX = 0;
+    turtle.currentSlideY = 0;
+    turtle.rotation =0.5
+    turtle.resizeFunc = function(resizeParams){
+        this.position.x = resizeParams.deviceWidth + 160  ;
+        this.position.y = -150  ;
+        this.scale.x =  resizeParams.scaleDeltaMin;
+        this.scale.y = resizeParams.scaleDeltaMin;
+        this.resizeParams = resizeParams;
+    }
+
+    turtle.startAnimation = function(){
+        this.animationTimer = setInterval(function(){
+            if(this.currentSlideX == 6)
+            {
+                this.currentSlideX = 0;
+                this.currentSlideY++;
+            }
+            if(this.currentSlideY == 4)
+            {
+                this.currentSlideY = 0;
+            }
+            var turtleTexture =  new PIXI.Texture(turtleBaseTexture, new PIXI.Rectangle(this.currentSlideX*158, this.currentSlideY*141, 158, 141));
+            this.setTexture(turtleTexture);
+            this.currentSlideX++;
+        }.bind(this),80);
+    }
+
+    turtle.stopAnimation = function(){
+        clearInterval(this.animationTimer)
+    }
+
+    turtle.startMoving = function(){
+        var self = this;
+        this.startAnimation();
+        var nextPositionX = -160;
+        var nextPositionY = this.resizeParams.deviceHeight - 150;
+        this.scale.y =  this.resizeParams.scaleDeltaMin;
+        this.rotation = 0.5
+        if(this.position.x == -160){
+            nextPositionX = this.resizeParams.deviceWidth + 160;
+            nextPositionY = 0;
+            this.scale.y =  -this.resizeParams.scaleDeltaMin;
+            this.rotation = 1.6
+        }
+
+        TweenMax.to(this, 30, {x:nextPositionX, y:nextPositionY,ease:Linear.easeNone, onUpdate:function(){
+
+            },onComplete:function(){
+            self.stopAnimation();
+        }
+        })
+    }
+
+    this.gameStage.addChildAt(turtle,1);
+    this.elementsToResize.push(turtle);
+
+    setInterval(this.Turtle.startMoving.bind(this.Turtle),60000)
+}
 
 protoGS.setupGameContainer = function(){
     this.gameContainer = new PIXI.DisplayObjectContainer();
@@ -128,55 +201,30 @@ protoGS.setupSlotsContainer = function(){
 }
 
 protoGS.runSlots = function(){
-    this.slotObjs[0].startSlotRunning();
-    setTimeout(function(){
-        this.slotObjs[1].startSlotRunning();
+//    if(window.startAllSlots){
+        this.slotObjs[0].startSlotRunning();
         setTimeout(function(){
-            this.slotObjs[2].startSlotRunning();
+            this.slotObjs[1].startSlotRunning();
             setTimeout(function(){
-                this.slotObjs[3].startSlotRunning();
+                this.slotObjs[2].startSlotRunning();
                 setTimeout(function(){
-                    this.slotObjs[4].startSlotRunning();
+                    this.slotObjs[3].startSlotRunning();
+                    setTimeout(function(){
+                        this.slotObjs[4].startSlotRunning();
+                    }.bind(this),70)
                 }.bind(this),70)
             }.bind(this),70)
         }.bind(this),70)
-    }.bind(this),70)
-}
-
-protoGS.runSlotsOLD = function(slots, callback){
-var self = this;
-    new TweenMax.to(slots, 0.4, {y:"+=125", /*delay:0.5,*/ ease:Back.easeIn, onComplete:function(){
-
-//        new TweenMax.to(self.slots[0], 0.2, {y:"+=140",onComplete:function(){
-//
-//        }});
-
-        self.runningSlots(slots);
-
-        window.stopSlots = false;
-        window.count = 0;
-        setTimeout(function(){
-            stopSlots = true;
-        },5000)
-//        for(var j=0;j<4;j++)
-//        {
-//            console.log(j)
-//            slots[j].showBlur(true)
-//        }
-
-    }});
-
-    if(callback)
-        callback();
+//    }
 }
 
 protoGS.runningSlots = function(slots){
     var slotsList = slots;
     var self = this;
-    var anim = new TweenMax.to(slotsList, 0.2, {y:"+=250",onUpdate:function(){
+    var anim = new TweenMax.to(slotsList, 0.5, {y:"+=250",onUpdate:function(){
 //        console.log("GOOD NEWS")
 //        console.log(slotsList[3].position.y)
-        if(slotsList[3].position.y>=200)
+        if(slotsList[3].position.y>=100)
         {
 
             var slot = slotsList.pop();
@@ -237,13 +285,17 @@ protoGS.generateSlots = function(){
     }
 
     var startSlotRunning = function(){
+//            this.continueSlotRunning()
+//            this.showBlur(true);
+//        return;
+
         var self = this;
         self.stopContinueSlots = false;
         setTimeout(function(){
             self.showBlur(false);
             self.slotCurrentIndex = self.winCombination[self.drumIndex]-3;
             self.stopContinueSlots = true;
-        },3500)
+        },3000)
 
         TweenMax.to(this.slots, 0.2, {y:"+=125",ease:Back.easeIn, onComplete:function(){
             self.continueSlotRunning();
@@ -254,7 +306,20 @@ protoGS.generateSlots = function(){
     var continueSlotRunning = function(){
         var slotsList = this.slots;
         var self = this;
-        var anim = new TweenMax.to(slotsList, 0.25, {y:"+=350",onUpdate:function(){
+//        slotsList[0].position.y += 30;
+//        slotsList[1].position.y += 30;
+//        slotsList[2].position.y += 30;
+//        slotsList[3].position.y += 30;
+//        if(slotsList[3].position.y>=200)
+//        {
+//            var slot = slotsList.pop();
+//            slot.changeState();
+//            slot.position.y = -313;
+//            slotsList.unshift(slot);
+//        }
+//        return
+
+        var anim = new TweenMax.to(slotsList, 0.25, {y:"+=300.5", ease:Linear.easeNone,onUpdate:function(){
             if(slotsList[3].position.y>=200)
             {
 
@@ -283,7 +348,7 @@ protoGS.generateSlots = function(){
         var slotsList = this.slots;
         var self = this;
         var delta = slotsList[0].position.y+313;
-        TweenMax.to(slotsList, 0.3, {y:"-="+delta,ease:Back.easeOut, onComplete:function(){
+        TweenMax.to(slotsList, 0.4, {y:"-="+delta,ease:Back.easeOut, onComplete:function(){
             var index =  Math.floor((Math.random() * 3) + 1);
             setTimeout(function(){slotsList[index].showWinAnimation();},(4-self.drumIndex)*70);
         }});
@@ -390,6 +455,7 @@ protoGS.setupSpinContainer = function(){
         this.alpha = 1
         // set the interaction data to null
         this.data = null;
+//        window.startAllSlots = true;
         self.runSlots();
 //        self.runSlots(self.slots[0],function(){
 //            self.runSlots(self.slots[1], function(){
@@ -571,8 +637,8 @@ protoGS.setupJackpots = function(){
 protoGS.showGameScreen = function(show){
     if(show){
         this.resize();
-        this.gameStage.addChildAt(this.gameContainer,1);
-
+        this.gameStage.addChildAt(this.gameContainer,2);
+        this.Turtle.startMoving();
     }
     else{
         this.gameContainer.removeChildren();

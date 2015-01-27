@@ -64,7 +64,9 @@ protoGA.initAssetsLoader = function(){
         "./img/externals/brands/PCC/menu_tabs.png",
         "./img/symbols-anim-blur.png",
         "./img/symbolsAnim/general.png",
-        "./img/jpTicker.png"
+        "./img/jpTicker.png",
+        "./img/jellyfish.png",
+        "./img/turtle.png"
 
     ];
     this.assetLoader=new PIXI.AssetLoader(assets);
@@ -160,8 +162,12 @@ protoGA.setupBackground = function(){
 }
 
 protoGA.run = function(){
-
-    this.renderer = new PIXI.CanvasRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
+    var isWindows = /Windows Phone/i.test(navigator.userAgent);
+    if(!isWindows){
+        this.renderer = new PIXI.autoDetectRecommendedRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
+    }
+    else
+        this.renderer = new PIXI.CanvasRenderer(this.deviceWidth, this.deviceHeight,{autoResize:true,view:null, transparent:false, antialias:false, preserveDrawingBuffer:false, resolution:window.devicePixelRatio, clearBeforeRender:true});
     this.resize();
     document.body.appendChild(this.renderer.view);
 
@@ -169,8 +175,12 @@ protoGA.run = function(){
     requestAnimationFrame(animate);
 
     function animate() {
+        meter.tickStart();
         self.renderer.render(self.gameStage);
+//        if(self.currentScreen && self.currentScreen.runSlots)
+//            self.currentScreen.runSlots();
         requestAnimationFrame(animate);
+        meter.tick();
     }
 
 }
