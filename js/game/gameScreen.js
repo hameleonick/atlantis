@@ -146,7 +146,7 @@ protoGS.setupSlotsContainer = function(){
 
     var maskframe = new PIXI.Graphics();
     maskframe.beginFill();
-    maskframe.drawRoundedRect(-frame.width/2 + 25,-frame.height/2 + 20  ,frame.width- 50,frame.height-40,30);
+    maskframe.drawRect(-frame.width/2 + 25,-frame.height/2 + 20  ,frame.width- 50,frame.height-40);
     maskframe.endFill();
 
 //    maskframe.position.x = -100;
@@ -319,7 +319,7 @@ protoGS.generateSlots = function(){
 //        }
 //        return
 
-        var anim = new TweenMax.to(slotsList, 0.25, {y:"+=300.5", ease:Linear.easeNone,onUpdate:function(){
+        var anim = new TweenMax.to(slotsList, 0.15, {y:"+=300.5", ease:Linear.easeNone,onUpdate:function(){
             if(slotsList[3].position.y>=200)
             {
 
