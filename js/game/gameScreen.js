@@ -34,6 +34,7 @@ protoGS.getSlotsConfiguration = function(){
 
 protoGS.setupView = function(){
 
+    this.cacheSlotTextures();
     this.setupGameContainer();
     this.setupSlotsContainer();
     this.setupSpinContainer();
@@ -41,6 +42,7 @@ protoGS.setupView = function(){
     this.setupMenu();
     this.setupJackpots();
     this.setupAdditionalElements()
+
 
 };
 
@@ -258,8 +260,8 @@ protoGS.runningSlots = function(slots){
 
     }});
 }
-// y 202
-protoGS.generateSlots = function(){
+
+protoGS.cacheSlotTextures = function(){
     var img = new Image();
     img.src = "./img/symbols-anim.png"
     var imgBlur = new Image();
@@ -267,16 +269,42 @@ protoGS.generateSlots = function(){
     var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
     var textureBlur = new PIXI.BaseTexture(imgBlur, PIXI.scaleModes.DEFAULT);
 
+//    this.textures = [{},{}];
+//    var tempText =
+var j=12;
+    for(var i=0;i<12;i++){
+        var slotTextureBlur =  new PIXI.Texture(textureBlur, new PIXI.Rectangle(0, i*100, 100, 100));
+        var slotTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, i*100, 100, 100));
+//        this.textures[0][i] = slotTexture;
+//        this.textures[1][i] = slotTextureBlur
+
+        PIXI.Texture.addTextureToCache(slotTexture,i)
+        PIXI.Texture.addTextureToCache(slotTextureBlur,j)
+        j++;
+    }
+
+}
+
+// y 202
+protoGS.generateSlots = function(){
+//    var img = new Image();
+//    img.src = "./img/symbols-anim.png"
+//    var imgBlur = new Image();
+//    imgBlur.src = "./img/symbols-anim-blur.png"
+//    var texture = new PIXI.BaseTexture(img, PIXI.scaleModes.DEFAULT);
+//    var textureBlur = new PIXI.BaseTexture(imgBlur, PIXI.scaleModes.DEFAULT);
+
     var changeState = function(){
+
         this.parentObj.slotCurrentIndex++;
         if(this.configurationSlots.length == this.parentObj.slotCurrentIndex)
             this.parentObj.slotCurrentIndex = 0;
 
         this.slotCurrentIndex = this.parentObj.slotCurrentIndex;
         if(this.parentObj.blurEffect)
-            var slotTexture =  new PIXI.Texture(textureBlur, new PIXI.Rectangle(0, (this.configurationSlots[this.parentObj.slotCurrentIndex]-1)*100, 100, 100));
+            var slotTexture = PIXI.TextureCache[this.configurationSlots[this.parentObj.slotCurrentIndex]+11] //new PIXI.Texture(textureBlur, new PIXI.Rectangle(0, (this.configurationSlots[this.parentObj.slotCurrentIndex]-1)*100, 100, 100));
         else
-            var slotTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[this.parentObj.slotCurrentIndex]-1)*100, 100, 100));
+            var slotTexture = PIXI.TextureCache[this.configurationSlots[this.parentObj.slotCurrentIndex]-1]; // PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[this.parentObj.slotCurrentIndex]-1)*100, 100, 100));
         this.setTexture(slotTexture);
     }
 
@@ -306,6 +334,7 @@ protoGS.generateSlots = function(){
     var continueSlotRunning = function(){
         var slotsList = this.slots;
         var self = this;
+        self.lastAnimationTime = new Date().getTime();
 //        slotsList[0].position.y += 30;
 //        slotsList[1].position.y += 30;
 //        slotsList[2].position.y += 30;
@@ -318,9 +347,12 @@ protoGS.generateSlots = function(){
 //            slotsList.unshift(slot);
 //        }
 //        return
-
-        var anim = new TweenMax.to(slotsList, 0.15, {y:"+=300.5", ease:Linear.easeNone,onUpdate:function(){
-            if(slotsList[3].position.y>=200)
+//TODO: SteppedEase - for future optimizations
+        var speed = 0.15;
+        if(meter.fps <=15)
+            speed = 0.55;
+        var anim = new TweenMax.to(slotsList, speed, {y:"+=300.5", ease:Linear.easeNone,onUpdate:function(){
+            if(slotsList[3].position.y>=170)
             {
 
                 var slot = slotsList.pop();
@@ -396,7 +428,7 @@ protoGS.generateSlots = function(){
         for(var j=0;j<4;j++)
         {
 //            if(!slots[i])11
-            var slotTexture =  new PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[i][j]-1)*100, 100, 100));
+            var slotTexture =  PIXI.TextureCache[this.configurationSlots[i][j]-1]//new PIXI.Texture(texture, new PIXI.Rectangle(0, (this.configurationSlots[i][j]-1)*100, 100, 100));
             var slot = new PIXI.Sprite(slotTexture);
             slot.slotCurrentIndex = j;
             slotObjs[i].slotCurrentIndex = j;

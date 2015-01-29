@@ -174,14 +174,17 @@ protoGA.run = function(){
     var self = this;
     requestAnimationFrame(animate);
 
-    function animate() {
+    function animate(time) {
         meter.tickStart();
         self.renderer.render(self.gameStage);
 //        if(self.currentScreen && self.currentScreen.runSlots)
 //            self.currentScreen.runSlots();
         requestAnimationFrame(animate);
+//        console.log(time)
         meter.tick();
     }
+
+    console.log(meter)
 
 }
 
